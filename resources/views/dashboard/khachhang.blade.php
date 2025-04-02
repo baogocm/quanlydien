@@ -7,7 +7,7 @@
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Quản Lý Khách Hàng</h1>
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGuestModal">
             <i class="fas fa-plus"></i> Thêm Khách Hàng
         </button>
     </div>
@@ -19,26 +19,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Tìm kiếm</label>
-                        <input type="text" class="form-control" placeholder="Tên khách hàng, mã khách hàng...">
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label>Khu vực</label>
-                        <select class="form-control">
-                            <option>Tất cả</option>
-                            <option>Khu vực 1</option>
-                            <option>Khu vực 2</option>
-                            <option>Khu vực 3</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label>&nbsp;</label>
-                        <button class="btn btn-primary form-control">
-                            <i class="fas fa-search"></i> Tìm kiếm
-                        </button>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Tên khách hàng, mã khách hàng...">
                     </div>
                 </div>
             </div>
@@ -56,52 +37,33 @@
                             <th>Họ và Tên</th>
                             <th>Địa Chỉ</th>
                             <th>Số Điện Thoại</th>
-                            <th>Email</th>
-                            <th>Khu Vực</th>
-                            <th>Trạng Thái</th>
+                            <th>Căn cước công dân</th>
                             <th>Thao Tác</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach($khachhangs as $kh)
                         <tr>
-                            <td>KH001</td>
-                            <td>Nguyễn Văn A</td>
-                            <td>123 Nguyễn Huệ, Q1</td>
-                            <td>0901234567</td>
-                            <td>nguyenvana@email.com</td>
-                            <td>Khu vực 1</td>
-                            <td><span class="badge bg-success">Đang hoạt động</span></td>
+                            <td>{{ $kh->makh }}</td>
+                            <td>{{ $kh->tenkh }}</td>
+                            <td>{{ $kh->diachi }}</td>
+                            <td>{{ $kh->dt }}</td>
+                            <td>{{ $kh->cmnd }}</td>
                             <td>
-                                <button class="btn btn-sm btn-info"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-sm btn-info" title="Chỉnh sửa" 
+                                        data-bs-toggle="modal" data-bs-target="#editGuestModal{{ $kh->makh }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" title="Xóa"
+                                        onclick="if(confirm('Bạn có chắc muốn xóa nhân viên này?')) document.getElementById('delete-form-{{ $kh->makh }}').submit()">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                <form id="delete-form-{{ $kh->makh }}" action="{{ route('khachhang.destroy', $kh->makh) }}" method="POST" style="display: none;">
+                                    @csrf
+                                </form>
                             </td>
                         </tr>
-                        <tr>
-                            <td>KH002</td>
-                            <td>Trần Thị B</td>
-                            <td>456 Lê Lợi, Q5</td>
-                            <td>0907654321</td>
-                            <td>tranthib@email.com</td>
-                            <td>Khu vực 2</td>
-                            <td><span class="badge bg-success">Đang hoạt động</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-info"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>KH003</td>
-                            <td>Lê Văn C</td>
-                            <td>789 Trần Hưng Đạo, Q3</td>
-                            <td>0903456789</td>
-                            <td>levanc@email.com</td>
-                            <td>Khu vực 1</td>
-                            <td><span class="badge bg-warning">Tạm ngưng</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-info"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -126,4 +88,85 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="addGuestModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Khách Hàng Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('khachhang.store') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Mã khách hàng</label>
+                        <input type="text" class="form-control" name="makh" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Họ và tên</label>
+                        <input type="text" class="form-control" name="tenkh" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ</label>
+                        <input type="text" class="form-control" name="diachi" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="text" class="form-control" name="dt" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Căn cước công dân</label>
+                        <input type="text" class="form-control" name="cmnd" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Thêm</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@foreach($khachhangs as $kh)
+<div class="modal fade" id="editGuestModal{{ $kh->makh }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh Sửa Khách Hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('khachhang.update', $kh->makh) }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Mã khách hàng</label>
+                        <input type="text" class="form-control" name="makh" value="{{ $kh->makh }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Họ và tên</label>
+                        <input type="text" class="form-control" name="tenkh" value="{{ $kh->tenkh }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Địa chỉ</label>
+                        <input type="text" class="form-control" name="diachi" value="{{ $kh->diachi }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại</label>
+                        <input type="text" class="form-control" name="dt" value="{{ $kh->dt }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Căn cước công dân</label>
+                        <input type="text" class="form-control" name="cmnd" value="{{ $kh->cmnd }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
+<script src="{{ asset('js/guest.js') }}"></script>
 @endsection 

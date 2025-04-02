@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GuestController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AuthNhanVien;
 use App\Http\Middleware\RedirectIfAuthenticated;
@@ -27,7 +28,9 @@ Route::middleware([AuthNhanVien::class])->group(function () {
 
     // Khách hàng routes
     Route::get('/khachhang', [DashboardController::class, 'khachHang'])->name('khachhang.index');
-
+    Route::post('/khachhang', [GuestController::class, 'store'])->name('khachhang.store');
+    Route::post('/khachhang/update/{makh}', [GuestController::class, 'update'])->name('khachhang.update');
+    Route::post('/khachhang/delete/{makh}', [GuestController::class, 'destroy'])->name('khachhang.destroy');
     // Điện kế routes
     Route::get('/dienke', [DashboardController::class, 'dienKe'])->name('dienke.index');
 

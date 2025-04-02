@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Add active class to current menu item
     const currentLocation = location.pathname;
-    const menuItems = document.querySelectorAll('#sidebar ul li a');
+    const menuItems = document.querySelectorAll('#sidebar .nav-item a');
     menuItems.forEach(item => {
         if (item.getAttribute('href') === currentLocation) {
             item.parentElement.classList.add('active');
