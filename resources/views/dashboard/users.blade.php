@@ -19,7 +19,7 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label>Tìm kiếm</label>
-                        <input type="text" class="form-control" placeholder="Mã nhân viên, chức vụ...">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Mã nhân viên, chức vụ...">
                     </div>
                 </div>
                 <div class="col-md-3">
@@ -31,14 +31,6 @@
                             <option>Nhân viên</option>
                             <option>Thu ngân</option>
                         </select>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="form-group">
-                        <label>&nbsp;</label>
-                        <button class="btn btn-primary form-control">
-                            <i class="fas fa-search"></i> Tìm kiếm
-                        </button>
                     </div>
                 </div>
             </div>
@@ -242,5 +234,6 @@
         </div>
     </div>
 </div>
+<script src="{{ asset('js/user.js') }}"></script>
 @endforeach
 @endsection 

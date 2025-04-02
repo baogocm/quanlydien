@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\NhanVien;
+use App\Models\KhachHang;
 
 class DashboardController extends Controller
 {
@@ -21,7 +22,8 @@ class DashboardController extends Controller
      */
     public function khachHang()
     {
-        return view('dashboard.khachhang');
+        $khachhangs = KhachHang::all();
+        return view('dashboard.khachhang', compact('khachhangs'));
     }
 
     /**
