@@ -12,5 +12,5 @@ class NhanVien extends Model
     protected $primaryKey = 'manv';
     protected $keyType = 'string';
     public $timestamps = false;
-    protected $fillable = ['manv', 'ngaysinh', 'chucvu', 'tk', 'mk', 'phai', 'luong', 'sdt'];
+    protected $fillable = ['manv', 'tennv', 'ngaysinh', 'chucvu', 'tk', 'mk', 'phai', 'luong', 'sdt'];
 }

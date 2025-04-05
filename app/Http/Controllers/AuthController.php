@@ -33,6 +33,7 @@ class AuthController extends Controller
         ]);
     }
 
+
     public function logout()
     {
         Session::forget('nhanvien');

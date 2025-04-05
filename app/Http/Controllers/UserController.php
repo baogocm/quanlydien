@@ -11,6 +11,7 @@ class UserController extends Controller
     {
         $request->validate([
             'manv' => 'required|unique:nhanvien,manv',
+            'tennv' => 'required',
             'ngaysinh' => 'required|date',
             'chucvu' => 'required',
             'tk' => 'required|unique:nhanvien,tk',

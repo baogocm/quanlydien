@@ -12,7 +12,7 @@ class DienKe extends Model
     protected $primaryKey = 'madk';
     protected $keyType = 'string';
     public $timestamps = false;
-    protected $fillable = ['madk', 'makh', 'ngaysx', 'ngaylap', 'mota', 'trangthai'];
+    protected $fillable = ['madk', 'makh', 'ngaylap', 'mota', 'trangthai', 'cs_dau', 'cs_cuoi'];
 
     public function khachHang()
     {

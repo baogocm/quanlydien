@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\NhanVien;
 use App\Models\KhachHang;
+use App\Models\DienKe;
 
 class DashboardController extends Controller
 {
@@ -31,7 +32,8 @@ class DashboardController extends Controller
      */
     public function dienKe()
     {
-        return view('dashboard.dienke');
+        $dienkes = DienKe::all();
+        return view('dashboard.dienke', compact('dienkes'));
     }
 
     /**

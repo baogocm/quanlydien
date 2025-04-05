@@ -45,6 +45,7 @@
                     <thead>
                         <tr>
                             <th>Mã NV</th>
+                            <th>Tên NV</th>
                             <th>Ngày sinh</th>
                             <th>Chức vụ</th>
                             <th>Tài khoản</th>
@@ -58,6 +59,7 @@
                         @foreach($nhanviens as $nv)
                         <tr>
                             <td>{{ $nv->manv }}</td>
+                            <td>{{ $nv->tennv }}</td>
                             <td>{{ $nv->ngaysinh }}</td>
                             <td>{{ $nv->chucvu }}</td>
                             <td>{{ $nv->tk }}</td>
@@ -104,6 +106,10 @@
                     <div class="mb-3">
                         <label class="form-label">Mã nhân viên</label>
                         <input type="text" class="form-control" name="manv" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tên nhân viên</label>
+                        <input type="text" class="form-control" name="tennv" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Ngày sinh</label>
@@ -164,6 +170,10 @@
                     <div class="mb-3">
                         <label class="form-label">Mã nhân viên</label>
                         <input type="text" class="form-control" name="manv" value="{{ $nv->manv }}" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tên nhân viên</label>
+                        <input type="text" class="form-control" name="tennv" value="{{ $nv->tennv }}" readonly>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Ngày sinh</label>

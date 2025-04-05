@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DienKeController;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AuthNhanVien;
@@ -33,6 +34,10 @@ Route::middleware([AuthNhanVien::class])->group(function () {
     Route::post('/khachhang/delete/{makh}', [GuestController::class, 'destroy'])->name('khachhang.destroy');
     // Điện kế routes
     Route::get('/dienke', [DashboardController::class, 'dienKe'])->name('dienke.index');
+    Route::post('/dienke', [DienKeController::class, 'store'])->name('dienke.store');
+    Route::post('/dienke/update/{madk}', [DienKeController::class, 'update'])->name('dienke.update');
+    Route::post('/dienke/updateTrangThai/{madk}', [DienKeController::class, 'updateTrangThai'])->name('dienke.updateTrangThai');
+    Route::post('/dienke/delete/{madk}', [DienKeController::class, 'destroy'])->name('dienke.destroy');
 
     // Hóa đơn routes
     Route::get('/hoadon', [DashboardController::class, 'hoaDon'])->name('hoadon.index');

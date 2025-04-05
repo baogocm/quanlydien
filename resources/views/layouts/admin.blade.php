@@ -113,10 +113,16 @@
                         <div class="dropdown">
                             <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                                 data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user"></i> {{ Session::get('nhanvien')->manv ?? 'Admin' }}
+                                <i class="fas fa-user"></i> {{ Session::get('nhanvien')->tennv ?? 'Admin' }}
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <ul class="dropdown-menu p-1" aria-labelledby="dropdownMenuButton">
                                 <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog"></i> Profile</a></li>
+                                <form action="{{ route('logout') }}" method="POST" class="d-grid">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger">
+                                        <i class="fas fa-sign-out-alt"></i> Đăng Xuất
+                                    </button>
+                                </form>
                             </ul>
                         </div>
                     </div>
