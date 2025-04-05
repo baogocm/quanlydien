@@ -1,15 +1,15 @@
 document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("searchInput");
-    const roleFilter = document.getElementById("roleFilter");
-    const tableRows = document.querySelectorAll("table tbody tr");
+    const kyFilter = document.getElementById("kyFilter");
+    const tableRows = document.querySelectorAll(".custom-table tbody tr");
 
     function filterData() {
-        const roleValue = roleFilter.value.toLowerCase();
+        const kyValue = kyFilter.value;
         const searchValue = searchInput.value.toLowerCase();
 
         tableRows.forEach(row => {
-            const roleCell = row.cells[3].textContent.toLowerCase();
-            const shouldShow = (roleValue === "" || roleCell === roleValue) && 
+            const kyCell = row.cells[2].textContent; // Cột kỳ
+            const shouldShow = (kyValue === "" || kyCell === kyValue) && 
                              Array.from(row.cells).some(cell => 
                                  cell.textContent.toLowerCase().includes(searchValue)
                              );
@@ -19,6 +19,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Thêm event listeners
-    roleFilter.addEventListener("change", filterData);
+    kyFilter.addEventListener("change", filterData);
     searchInput.addEventListener("input", filterData);
 });

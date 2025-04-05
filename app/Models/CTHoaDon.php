@@ -11,4 +11,9 @@ class CTHoaDon extends Model
     protected $table = 'cthoadon';
     public $timestamps = false;
     protected $fillable = ['mahd', 'madk', 'dntt', 'dongia'];
+
+    public function dienKe()
+    {
+        return $this->belongsTo(DienKe::class, 'madk', 'madk');
+    }
 }

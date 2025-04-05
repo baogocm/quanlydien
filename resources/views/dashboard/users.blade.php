@@ -25,11 +25,10 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>Chức vụ</label>
-                        <select class="form-control">
-                            <option>Tất cả</option>
-                            <option>Quản lý</option>
-                            <option>Nhân viên</option>
-                            <option>Thu ngân</option>
+                        <select class="form-control" id="roleFilter">
+                            <option value="">Tất cả</option>
+                            <option value="Nhân Viên">Nhân Viên</option>
+                            <option value="Admin">Admin</option>
                         </select>
                     </div>
                 </div>
@@ -68,7 +67,7 @@
                             <td>{{ $nv->sdt }}</td>
                             <td>
                                 <button class="btn btn-sm btn-info" title="Chỉnh sửa" 
-                                        data-bs-toggle="modal" data-bs-target="#editUserModal{{ $nv->manv }}">
+                                        data-bs-toggle="modal" data-bs-target="#editModal{{ $nv->manv }}">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <button class="btn btn-sm btn-warning" title="Đổi mật khẩu"
@@ -157,54 +156,30 @@
 
 <!-- Edit User Modals -->
 @foreach($nhanviens as $nv)
-<div class="modal fade" id="editUserModal{{ $nv->manv }}" tabindex="-1">
+<div class="modal fade" id="editModal{{ $nv->manv }}" tabindex="-1" aria-labelledby="editModalLabel{{ $nv->manv }}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Chỉnh Sửa Nhân Viên</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
             <form action="{{ route('users.update', $nv->manv) }}" method="POST">
                 @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel{{ $nv->manv }}">Chỉnh sửa chức vụ nhân viên</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Mã nhân viên</label>
-                        <input type="text" class="form-control" name="manv" value="{{ $nv->manv }}" readonly>
+                        <input type="text" class="form-control" value="{{ $nv->manv }}" readonly>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Tên nhân viên</label>
-                        <input type="text" class="form-control" name="tennv" value="{{ $nv->tennv }}" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Ngày sinh</label>
-                        <input type="date" class="form-control" name="ngaysinh" value="{{ $nv->ngaysinh }}" required>
+                        <input type="text" class="form-control" value="{{ $nv->tennv }}" readonly>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Chức vụ</label>
-                        <select class="form-control" name="chucvu" required>
-                            <option value="Quản lý" {{ $nv->chucvu == 'Quản lý' ? 'selected' : '' }}>Quản lý</option>
-                            <option value="Nhân viên" {{ $nv->chucvu == 'Nhân viên' ? 'selected' : '' }}>Nhân viên</option>
-                            <option value="Thu ngân" {{ $nv->chucvu == 'Thu ngân' ? 'selected' : '' }}>Thu ngân</option>
+                        <select class="form-select" name="chucvu" required>
+                            <option value="Nhân Viên" {{ $nv->chucvu == 'Nhân Viên' ? 'selected' : '' }}>Nhân Viên</option>
+                            <option value="Admin" {{ $nv->chucvu == 'Admin' ? 'selected' : '' }}>Admin</option>
                         </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Tài khoản</label>
-                        <input type="text" class="form-control" name="tk" value="{{ $nv->tk }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Giới tính</label>
-                        <select class="form-control" name="phai" required>
-                            <option value="Nam" {{ $nv->phai == 'Nam' ? 'selected' : '' }}>Nam</option>
-                            <option value="Nữ" {{ $nv->phai == 'Nữ' ? 'selected' : '' }}>Nữ</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Lương</label>
-                        <input type="number" class="form-control" name="luong" value="{{ $nv->luong }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Số điện thoại</label>
-                        <input type="tel" class="form-control" name="sdt" value="{{ $nv->sdt }}" required>
                     </div>
                 </div>
                 <div class="modal-footer">

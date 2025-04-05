@@ -3,141 +3,99 @@
 @section('title', 'Quản Lý Giá Điện')
 
 @section('content')
-<div class="container-fluid">
-    <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Quản Lý Giá Điện</h1>
-        <button class="btn btn-primary">
-            <i class="fas fa-plus"></i> Thêm Bậc Giá
-        </button>
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Quản lý giá điện</h1>
+    
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+    @endif
 
-    <!-- Current Rates Card -->
-    <div class="card dashboard-card mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Bảng Giá Điện Hiện Tại</h6>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Bảng giá điện
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table custom-table">
-                    <thead>
-                        <tr>
-                            <th>Bậc</th>
-                            <th>Mức Tiêu Thụ (kWh)</th>
-                            <th>Đơn Giá (VNĐ/kWh)</th>
-                            <th>Áp Dụng Từ</th>
-                            <th>Trạng Thái</th>
-                            <th>Thao Tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Bậc 1</td>
-                            <td>0 - 50</td>
-                            <td>1,678</td>
-                            <td>01/01/2024</td>
-                            <td><span class="badge bg-success">Đang áp dụng</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-info"><i class="fas fa-edit"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Bậc 2</td>
-                            <td>51 - 100</td>
-                            <td>1,734</td>
-                            <td>01/01/2024</td>
-                            <td><span class="badge bg-success">Đang áp dụng</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-info"><i class="fas fa-edit"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Bậc 3</td>
-                            <td>101 - 200</td>
-                            <td>2,014</td>
-                            <td>01/01/2024</td>
-                            <td><span class="badge bg-success">Đang áp dụng</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-info"><i class="fas fa-edit"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Bậc 4</td>
-                            <td>201 - 300</td>
-                            <td>2,536</td>
-                            <td>01/01/2024</td>
-                            <td><span class="badge bg-success">Đang áp dụng</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-info"><i class="fas fa-edit"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Bậc 5</td>
-                            <td>301 - 400</td>
-                            <td>2,834</td>
-                            <td>01/01/2024</td>
-                            <td><span class="badge bg-success">Đang áp dụng</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-info"><i class="fas fa-edit"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Bậc 6</td>
-                            <td>Trên 400</td>
-                            <td>2,927</td>
-                            <td>01/01/2024</td>
-                            <td><span class="badge bg-success">Đang áp dụng</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-info"><i class="fas fa-edit"></i></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+            <table id="datatablesSimple" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Bậc</th>
+                        <th>Tên bậc</th>
+                        <th>Từ số KW</th>
+                        <th>Đến số KW</th>
+                        <th>Đơn giá (VNĐ)</th>
+                        <th>Ngày áp dụng</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($bacgia as $bg)
+                    <tr>
+                        <td>{{ $bg->mabac }}</td>
+                        <td>{{ $bg->tenbac }}</td>
+                        <td>{{ $bg->tusokw }}</td>
+                        <td>{{ $bg->densokw ?? 'Không giới hạn' }}</td>
+                        <td>{{ number_format($bg->dongia, 0, ',', '.') }}</td>
+                        <td>{{ date('d/m/Y', strtotime($bg->ngayapdung)) }}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ $bg->mabac }}">
+                                <i class="fas fa-edit"></i> Sửa
+                            </button>
+                        </td>
+                    </tr>
 
-    <!-- Price History Card -->
-    <div class="card dashboard-card">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">Lịch Sử Thay Đổi Giá</h6>
-            <div class="form-group mb-0">
-                <input type="month" class="form-control" value="2024-03">
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table custom-table">
-                    <thead>
-                        <tr>
-                            <th>Ngày Thay Đổi</th>
-                            <th>Bậc</th>
-                            <th>Giá Cũ (VNĐ)</th>
-                            <th>Giá Mới (VNĐ)</th>
-                            <th>Người Cập Nhật</th>
-                            <th>Ghi Chú</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>01/01/2024</td>
-                            <td>Tất cả các bậc</td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td>Admin</td>
-                            <td>Cập nhật giá mới 2024</td>
-                        </tr>
-                        <tr>
-                            <td>01/07/2023</td>
-                            <td>Bậc 3</td>
-                            <td>1,900</td>
-                            <td>2,014</td>
-                            <td>Admin</td>
-                            <td>Điều chỉnh giá bậc 3</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                    <!-- Modal Chỉnh sửa -->
+                    <div class="modal fade" id="editModal{{ $bg->mabac }}" tabindex="-1" aria-labelledby="editModalLabel{{ $bg->mabac }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form action="{{ route('giadien.update', $bg->mabac) }}" method="POST">
+                                    @csrf
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editModalLabel{{ $bg->mabac }}">Chỉnh sửa bậc giá {{ $bg->tenbac }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Bậc</label>
+                                            <input type="text" class="form-control" value="{{ $bg->mabac }}" readonly>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Tên bậc</label>
+                                            <input type="text" class="form-control" value="{{ $bg->tenbac }}" readonly>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Từ số KW</label>
+                                            <input type="number" class="form-control" name="tusokw" value="{{ $bg->tusokw }}" required min="0">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Đến số KW</label>
+                                            <input type="number" class="form-control" name="densokw" value="{{ $bg->densokw }}">
+                                            <small class="text-muted">Để trống nếu không giới hạn</small>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Đơn giá (VNĐ)</label>
+                                            <input type="number" class="form-control" name="dongia" value="{{ $bg->dongia }}" required min="0">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Ngày áp dụng</label>
+                                            <input type="text" class="form-control" value="{{ date('d/m/Y') }}" readonly>
+                                            <small class="text-muted">Ngày áp dụng sẽ được cập nhật tự động</small>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

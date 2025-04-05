@@ -29,18 +29,15 @@ class UserController extends Controller
     public function update(Request $request, $manv)
     {
         $request->validate([
-            'ngaysinh' => 'required|date',
-            'chucvu' => 'required',
-            'tk' => 'required|unique:nhanvien,tk,'.$manv.',manv',
-            'phai' => 'required|in:Nam,Nữ',
-            'luong' => 'required|numeric|min:0',
-            'sdt' => 'required'
+            'chucvu' => 'required|in:Nhân Viên,Admin'
         ]);
 
         $nhanvien = NhanVien::findOrFail($manv);
-        $nhanvien->update($request->all());
+        $nhanvien->update([
+            'chucvu' => $request->chucvu
+        ]);
 
-        return redirect()->back()->with('success', 'Cập nhật nhân viên thành công!');
+        return redirect()->back()->with('success', 'Cập nhật chức vụ thành công!');
     }
 
     public function destroy($manv)

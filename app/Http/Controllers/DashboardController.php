@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\NhanVien;
 use App\Models\KhachHang;
 use App\Models\DienKe;
+use App\Models\BacGia;
+use App\Models\HoaDon;
+use App\Models\CTHoaDon;
 
 class DashboardController extends Controller
 {
@@ -14,8 +17,11 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        // TODO: Add real data from database
-        return view('dashboard.index');
+        $hoadons = HoaDon::with(['chiTietHoaDon.dienKe.khachHang', 'nhanVien'])->get();
+        $khachhangs = KhachHang::all();
+        $nhanviens = NhanVien::all();
+        
+        return view('dashboard.index', compact('hoadons', 'khachhangs', 'nhanviens'));
     }
 
     /**
@@ -41,7 +47,9 @@ class DashboardController extends Controller
      */
     public function hoaDon()
     {
-        return view('dashboard.hoadon');
+        $hoadons = HoaDon::with(['chiTietHoaDon', 'nhanVien'])->get();
+        $kys = HoaDon::distinct()->orderBy('ky')->pluck('ky');
+        return view('dashboard.hoadon', compact('hoadons', 'kys'));
     }
 
     /**
@@ -49,7 +57,8 @@ class DashboardController extends Controller
      */
     public function giaDien()
     {
-        return view('dashboard.giadien');
+        $bacgia = BacGia::all();
+        return view('dashboard.giadien', compact('bacgia'));
     }
 
     /**

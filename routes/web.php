@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DienKeController;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\BacGiaController;
+use App\Http\Controllers\HoaDonController;
 use App\Http\Middleware\AuthNhanVien;
 use App\Http\Middleware\RedirectIfAuthenticated;
 /*
@@ -41,9 +43,11 @@ Route::middleware([AuthNhanVien::class])->group(function () {
 
     // Hóa đơn routes
     Route::get('/hoadon', [DashboardController::class, 'hoaDon'])->name('hoadon.index');
+    Route::post('/hoadon/update-status/{mahd}', [HoaDonController::class, 'updateStatus'])->name('hoadon.updateStatus');
 
     // Giá điện routes
     Route::get('/giadien', [DashboardController::class, 'giaDien'])->name('giadien.index');
+    Route::post('/giadien/update/{mabac}', [BacGiaController::class, 'update'])->name('giadien.update');
 
     // Users routes
     Route::get('/users', [DashboardController::class, 'users'])->name('users.index');
