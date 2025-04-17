@@ -12,7 +12,7 @@ class KhachHang extends Model
     protected $primaryKey = 'makh';
     protected $keyType = 'string';
     public $timestamps = false;
-    protected $fillable = ['makh', 'tenkh', 'diachi', 'dt', 'cmnd'];
+    protected $fillable = ['makh', 'tenkh', 'dt', 'cmnd'];
 
     public function dienKes()
     {
