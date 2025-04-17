@@ -12,7 +12,6 @@ class GuestController extends Controller
         $request->validate([
             'makh' => 'required|unique:khachhang,makh',  // Đổi từ manv thành makh
             'tenkh' => 'required',                       // Tên khách hàng
-            'diachi' => 'required',                      // Địa chỉ khách hàng
             'dt' => 'required',                          // Số điện thoại khách hàng
             'cmnd' => 'required|unique:khachhang,cmnd',  // CMND
         ]);
@@ -27,7 +26,6 @@ class GuestController extends Controller
     {
         $request->validate([
             'tenkh' => 'required',
-            'diachi' => 'required',
             'dt' => 'required',
             'cmnd' => 'required|unique:khachhang,cmnd,' . $makh . ',makh', // Nếu cần update CMND, thêm điều kiện bỏ qua CMND cũ
         ]);

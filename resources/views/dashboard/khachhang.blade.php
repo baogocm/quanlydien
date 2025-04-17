@@ -36,7 +36,6 @@
                             <tr>
                                 <th>Mã KH</th>
                                 <th>Họ và Tên</th>
-                                <th>Địa Chỉ</th>
                                 <th>Số Điện Thoại</th>
                                 <th>Căn cước công dân</th>
                                 <th>Thao Tác</th>
@@ -47,7 +46,6 @@
                                 <tr>
                                     <td>{{ $kh->makh }}</td>
                                     <td>{{ $kh->tenkh }}</td>
-                                    <td>{{ $kh->diachi }}</td>
                                     <td>{{ $kh->dt }}</td>
                                     <td>{{ $kh->cmnd }}</td>
                                     <td>
@@ -113,10 +111,6 @@
                             <input type="text" class="form-control" name="tenkh" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Địa chỉ</label>
-                            <input type="text" class="form-control" name="diachi" required>
-                        </div>
-                        <div class="mb-3">
                             <label class="form-label">Số điện thoại</label>
                             <input type="text" class="form-control" name="dt" required>
                         </div>
@@ -154,10 +148,6 @@
                             <div class="mb-3">
                                 <label class="form-label">Họ và tên</label>
                                 <input type="text" class="form-control" name="tenkh" value="{{ $kh->tenkh }}">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Địa chỉ</label>
-                                <input type="text" class="form-control" name="diachi" value="{{ $kh->diachi }}">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Số điện thoại</label>

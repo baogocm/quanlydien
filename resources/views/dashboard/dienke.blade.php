@@ -55,6 +55,7 @@
                                 <th>Tên Khách Hàng</th>
                                 <th>Ngày Lắp</th>
                                 <th>Mô Tả</th>
+                                <th>Địa chỉ</th>
                                 <th>Chỉ Số Đầu</th>
                                 <th>Chỉ Số Cuối</th>
                                 <th>Trạng Thái</th>
@@ -69,6 +70,7 @@
                                     <td>{{ $dk->khachHang->tenkh }}</td>
                                     <td>{{ $dk->ngaylap }}</td>
                                     <td>{{ $dk->mota }}</td>
+                                    <td>{{ $dk->diachi }}</td>
                                     <td>{{ $dk->cs_dau }}</td>
                                     <td>{{ $dk->cs_cuoi }}</td>
                                     <td>
@@ -137,6 +139,10 @@
                         <div class="mb-3">
                             <label class="form-label">Mô Tả</label>
                             <input type="text" class="form-control" name="mota" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <input type="text" class="form-control" name="diachi" required>
                         </div>
                     </div>
                     <div class="modal-footer">

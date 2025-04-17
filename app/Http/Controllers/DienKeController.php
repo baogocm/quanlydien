@@ -16,7 +16,7 @@ class DienKeController extends Controller
         ]);
     
         // Thiết lập giá trị mặc định cho các trường nếu không được cung cấp trong request
-        $data = $request->only(['madk', 'makh', 'mota']);
+        $data = $request->only(['madk', 'makh', 'mota','diachi']);
         $data['trangthai'] =  1; // Nếu không có, gán 'active'
         $data['cs_dau'] = 0; // Nếu không có 'cs_dau' trong request, gán là 0
         $data['cs_cuoi'] = 0; // Nếu không có 'cs_cuoi' trong request, gán là 0
