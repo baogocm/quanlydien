@@ -40,14 +40,19 @@ Route::middleware([AuthNhanVien::class])->group(function () {
     Route::post('/dienke/update/{madk}', [DienKeController::class, 'update'])->name('dienke.update');
     Route::post('/dienke/updateTrangThai/{madk}', [DienKeController::class, 'updateTrangThai'])->name('dienke.updateTrangThai');
     Route::post('/dienke/delete/{madk}', [DienKeController::class, 'destroy'])->name('dienke.destroy');
+    Route::get('/dienke/taohoadon/{madk}', [DienKeController::class, 'taoHoaDon'])->name('dienke.taohoadon');
 
     // Hóa đơn routes
     Route::get('/hoadon', [DashboardController::class, 'hoaDon'])->name('hoadon.index');
     Route::post('/hoadon/update-status/{mahd}', [HoaDonController::class, 'updateStatus'])->name('hoadon.updateStatus');
 
     // Giá điện routes
-    Route::get('/giadien', [DashboardController::class, 'giaDien'])->name('giadien.index');
+    Route::get('/giadien', [BacGiaController::class, 'index'])->name('giadien.index');
+    Route::post('/giadien', [BacGiaController::class, 'store'])->name('giadien.store');
     Route::post('/giadien/update/{mabac}', [BacGiaController::class, 'update'])->name('giadien.update');
+    Route::post('/giadien/delete/{mabac}', [BacGiaController::class, 'destroy'])->name('giadien.destroy');
+    Route::get('/giadien/history', [BacGiaController::class, 'history'])->name('giadien.history');
+    Route::get('/giadien/history/{mabac}', [BacGiaController::class, 'historyByMaBac'])->name('giadien.history.detail');
 
     // Users routes
     Route::get('/users', [DashboardController::class, 'users'])->name('users.index');

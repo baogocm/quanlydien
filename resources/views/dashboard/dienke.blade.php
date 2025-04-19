@@ -12,6 +12,32 @@
             </button>
         </div>
 
+        <!-- Alerts -->
+        @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+
+        @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <ul class="mb-0">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+
         <!-- Search Box -->
         <div class="card mb-4">
             <div class="card-body">
@@ -83,6 +109,12 @@
                                             data-bs-target="#editDienKeModal{{ $dk->madk }}">
                                             <i class="fas fa-edit"></i>
                                         </button>
+                                        @if($dk->cs_dau < $dk->cs_cuoi && $dk->trangthai == 1)
+                                        <a href="{{ route('dienke.taohoadon', $dk->madk) }}" class="btn btn-sm btn-success me-1" title="Tính tiền điện" 
+                                           onclick="return confirm('Bạn có chắc muốn tạo hóa đơn cho điện kế này?')">
+                                            <i class="fas fa-file-invoice-dollar"></i>
+                                        </a>
+                                        @endif
                                         <button class="btn btn-sm btn-danger" title="Xóa"
                                             onclick="if(confirm('Bạn có chắc muốn xóa nhân viên này?')) document.getElementById('delete-form-{{ $dk->madk }}').submit()">
                                             <i class="fas fa-trash"></i>
@@ -129,26 +161,29 @@
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Mã Điện Kế</label>
-                            <input type="text" class="form-control" name="madk" required>
+                            <label class="form-label">Mã Điện Kế <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="madk" value="{{ old('madk') }}" required>
+                            <small class="text-muted">Mã không trùng với các điện kế đã có</small>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Mã Khách Hàng</label>
-                            <input type="text" class="form-control" name="makh" required>
+                            <label class="form-label">Mã Khách Hàng <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="makh" value="{{ old('makh') }}" required>
+                            <small class="text-muted">Mã khách hàng phải tồn tại trong hệ thống</small>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Mô Tả</label>
-                            <input type="text" class="form-control" name="mota" required>
+                            <input type="text" class="form-control" name="mota" value="{{ old('mota') }}">
+                            <small class="text-muted">Thông tin thêm về điện kế (không bắt buộc)</small>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Địa chỉ</label>
-                            <input type="text" class="form-control" name="diachi" required>
+                            <label class="form-label">Địa chỉ <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="diachi" value="{{ old('diachi') }}" required>
+                            <small class="text-muted">Địa chỉ lắp đặt điện kế</small>
                         </div>
                     </div>
                     <div class="modal-footer">
-
-                        <button type="submit" class="btn btn-primary">Thêm</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Thêm</button>
                     </div>
                 </form>
             </div>
