@@ -10,6 +10,7 @@ use App\Http\Controllers\BacGiaController;
 use App\Http\Controllers\HoaDonController;
 use App\Http\Middleware\AuthNhanVien;
 use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Controllers\GiaDienController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -46,13 +47,13 @@ Route::middleware([AuthNhanVien::class])->group(function () {
     Route::get('/hoadon', [DashboardController::class, 'hoaDon'])->name('hoadon.index');
     Route::post('/hoadon/update-status/{mahd}', [HoaDonController::class, 'updateStatus'])->name('hoadon.updateStatus');
 
-    // Giá điện routes
-    Route::get('/giadien', [BacGiaController::class, 'index'])->name('giadien.index');
-    Route::post('/giadien', [BacGiaController::class, 'store'])->name('giadien.store');
-    Route::post('/giadien/update/{mabac}', [BacGiaController::class, 'update'])->name('giadien.update');
-    Route::post('/giadien/delete/{mabac}', [BacGiaController::class, 'destroy'])->name('giadien.destroy');
-    Route::get('/giadien/history', [BacGiaController::class, 'history'])->name('giadien.history');
-    Route::get('/giadien/history/{mabac}', [BacGiaController::class, 'historyByMaBac'])->name('giadien.history.detail');
+    // Routes cho quản lý giá điện
+    Route::get('/giadien/history', [GiaDienController::class, 'history'])->name('giadien.history');
+    Route::get('/giadien/history/{id}', [GiaDienController::class, 'historyDetail'])->name('giadien.history.detail');
+    Route::get('/giadien', [GiaDienController::class, 'index'])->name('giadien.index');
+    Route::post('/giadien', [GiaDienController::class, 'store'])->name('giadien.store');
+    Route::post('/giadien/{id}', [GiaDienController::class, 'destroy'])->name('giadien.destroy');
+    Route::post('/giadien/update/{id}', [GiaDienController::class, 'update'])->name('giadien.update');
 
     // Users routes
     Route::get('/users', [DashboardController::class, 'users'])->name('users.index');
@@ -61,3 +62,4 @@ Route::middleware([AuthNhanVien::class])->group(function () {
     Route::post('/users/delete/{manv}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/change-password/{manv}', [UserController::class, 'changePassword'])->name('users.changePassword');
 });
+

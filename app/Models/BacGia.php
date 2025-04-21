@@ -29,6 +29,7 @@ class BacGia extends Model
      */
     protected $fillable = [
         'mabac',    // ID bậc giá (7, 8, 9, 10, 11...)
+        'id_version',
         'tenbac',   // Tên bậc (Bậc 1, Bậc 2, Bậc 3...)
         'tusokw',   // Giới hạn dưới KW (0, 51, 101, 201, 301...)
         'densokw',  // Giới hạn trên KW (50, 100, 200, 300, 99999...)
@@ -45,12 +46,22 @@ class BacGia extends Model
     }
     
     /**
+     * Relationship với bảng VersionBacGia
+     */
+    public function version()
+    {
+        return $this->belongsTo(VersionBacGia::class, 'id_version', 'id');
+    }
+    
+    /**
      * Tính tiền điện dựa trên số KW tiêu thụ
      */
-    public static function tinhTienDien($soKW)
+    public static function tinhTienDien($soKW, $id_version)
     {
         $tongTien = 0;
-        $bacGia = self::orderBy('tusokw')->get();
+        $bacGia = self::where('id_version', $id_version)
+            ->orderBy('tusokw')
+            ->get();
         
         foreach ($bacGia as $bac) {
             // Nếu số KW tiêu thụ nhỏ hơn giới hạn dưới của bậc này, bỏ qua
@@ -73,13 +84,14 @@ class BacGia extends Model
     /**
      * Lấy bậc giá theo số KW
      */
-    public static function getBacGiaByKW($soKW)
+    public static function getBacGiaByKW($soKW, $id_version)
     {
-        return self::where('tusokw', '<=', $soKW)
-                  ->where(function($query) use ($soKW) {
-                      $query->where('densokw', '>=', $soKW)
-                            ->orWhereNull('densokw');
-                  })
-                  ->first();
+        return self::where('id_version', $id_version)
+            ->where('tusokw', '<=', $soKW)
+            ->where(function($query) use ($soKW) {
+                $query->where('densokw', '>=', $soKW)
+                    ->orWhereNull('densokw');
+            })
+            ->first();
     }
 } 

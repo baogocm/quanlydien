@@ -21,168 +21,164 @@
     @endif
 
     <div class="mb-3">
-        <a href="{{ route('giadien.history') }}" class="btn btn-info">
-            <i class="fas fa-history"></i> Xem lịch sử thay đổi giá
-        </a>
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal">
-            <i class="fas fa-plus"></i> Thêm bậc giá mới
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBacGiaModal">
+            <i class="fas fa-plus"></i> Thêm Bậc Giá Mới
         </button>
-    </div>
-
-    <!-- Modal Thêm mới -->
-    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="{{ route('giadien.store') }}" method="POST">
-                    @csrf
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addModalLabel">Thêm bậc giá mới</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Tên bậc</label>
-                            <input type="text" class="form-control" name="tenbac" required>
-                            <small class="text-muted">Ví dụ: Bậc 1, Bậc 2, Bậc 3, ...</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Từ số KW</label>
-                            <input type="number" class="form-control" name="tusokw" required min="0">
-                            <small class="text-muted">Giới hạn dưới kWh của bậc</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Đến số KW</label>
-                            <input type="number" class="form-control" name="densokw">
-                            <small class="text-muted">Giới hạn trên kWh của bậc. Để trống nếu không giới hạn</small>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Đơn giá (VNĐ)</label>
-                            <input type="number" class="form-control" name="dongia" required min="0">
-                            <small class="text-muted">Số tiền tính cho mỗi kWh trong bậc này</small>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                        <button type="submit" class="btn btn-success">Thêm mới</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <a href="{{ route('giadien.history') }}" class="btn btn-info">
+            <i class="fas fa-history"></i> Xem lịch sử các phiên bản giá
+        </a>
     </div>
 
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-table me-1"></i>
-            Bảng giá điện
+            Bảng giá điện hiện tại (Version: {{ $latestVersion->id ?? 'N/A' }} - Áp dụng từ: {{ $latestVersion ? \Carbon\Carbon::parse($latestVersion->ngayapdung)->format('d/m/Y') : 'N/A' }})
         </div>
         <div class="card-body">
             <table id="datatablesSimple" class="table table-bordered">
                 <thead>
                     <tr>
-                        <th>Bậc</th>
+                        <th>Mã Bậc</th>
                         <th>Tên bậc</th>
                         <th>Từ số KW</th>
                         <th>Đến số KW</th>
-                        <th>Đơn giá (VNĐ)</th>
-                        <th>Ngày áp dụng</th>
+                        <th>Đơn giá (VNĐ/kWh)</th>
                         <th>Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($bacgia as $bg)
+                    @forelse($bacgia as $bg)
                     <tr>
                         <td>{{ $bg->mabac }}</td>
                         <td>{{ $bg->tenbac }}</td>
-                        <td>{{ $bg->tusokw }}</td>
-                        <td>{{ $bg->densokw ?? 'Không giới hạn' }}</td>
-                        <td>{{ number_format($bg->dongia, 0, ',', '.') }}</td>
-                        <td>{{ date('d/m/Y', strtotime($bg->ngayapdung)) }}</td>
+                        <td>{{ number_format($bg->tusokw, 0, ',', '.') }}</td>
+                        <td>{{ $bg->densokw == 99999 ? 'Trở lên' : number_format($bg->densokw, 0, ',', '.') }}</td>
+                        <td>{{ number_format($bg->dongia, 2, ',', '.') }}</td>
                         <td>
-                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ $bg->mabac }}">
-                                <i class="fas fa-edit"></i> Sửa
+                            <button class="btn btn-primary btn-sm" title="Sửa"
+                                    onclick="loadEditData({{ $bg->mabac }}, '{{ $bg->tenbac }}', {{ $bg->tusokw }}, {{ $bg->densokw }}, {{ $bg->dongia }})"
+                                    data-bs-toggle="modal" data-bs-target="#editModal">
+                                <i class="fas fa-edit"></i>
                             </button>
-                            <a href="{{ route('giadien.history.detail', $bg->mabac) }}" class="btn btn-info btn-sm">
-                                <i class="fas fa-history"></i> Lịch sử
-                            </a>
-                            <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $bg->mabac }}">
-                                <i class="fas fa-trash"></i> Xóa
+                            <button class="btn btn-danger btn-sm" title="Xóa"
+                                    onclick="if(confirm('Bạn có chắc muốn xóa bậc giá {{ $bg->tenbac }}?')) document.getElementById('delete-form-{{ $bg->mabac }}').submit()">
+                                <i class="fas fa-trash"></i>
                             </button>
+                            <form id="delete-form-{{ $bg->mabac }}" action="{{ route('giadien.destroy', $bg->mabac) }}" method="POST" style="display: none;">
+                                @csrf
+                            </form>
                         </td>
                     </tr>
-
-                    <!-- Modal Chỉnh sửa -->
-                    <div class="modal fade" id="editModal{{ $bg->mabac }}" tabindex="-1" aria-labelledby="editModalLabel{{ $bg->mabac }}" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form action="{{ route('giadien.update', $bg->mabac) }}" method="POST">
-                                    @csrf
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="editModalLabel{{ $bg->mabac }}">Chỉnh sửa bậc giá {{ $bg->tenbac }}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label class="form-label">Bậc</label>
-                                            <input type="text" class="form-control" value="{{ $bg->mabac }}" readonly>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Tên bậc</label>
-                                            <input type="text" class="form-control" value="{{ $bg->tenbac }}" readonly>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Từ số KW</label>
-                                            <input type="number" class="form-control" name="tusokw" value="{{ $bg->tusokw }}" required min="0">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Đến số KW</label>
-                                            <input type="number" class="form-control" name="densokw" value="{{ $bg->densokw }}">
-                                            <small class="text-muted">Để trống nếu không giới hạn</small>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Đơn giá (VNĐ)</label>
-                                            <input type="number" class="form-control" name="dongia" value="{{ $bg->dongia }}" required min="0">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">Ngày áp dụng</label>
-                                            <input type="text" class="form-control" value="{{ date('d/m/Y') }}" readonly>
-                                            <small class="text-muted">Ngày áp dụng sẽ được cập nhật tự động</small>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Modal Xóa -->
-                    <div class="modal fade" id="deleteModal{{ $bg->mabac }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ $bg->mabac }}" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <form action="{{ route('giadien.destroy', $bg->mabac) }}" method="POST">
-                                    @csrf
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteModalLabel{{ $bg->mabac }}">Xác nhận xóa</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Bạn có chắc chắn muốn xóa bậc giá <strong>{{ $bg->tenbac }}</strong>?</p>
-                                        <p class="text-danger">Hành động này không thể hoàn tác, nhưng lịch sử thay đổi vẫn được lưu lại.</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                        <button type="submit" class="btn btn-danger">Xóa</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center">Không có dữ liệu bậc giá cho phiên bản hiện tại.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-@endsection 
+
+<!-- Modal Thêm Bậc Giá -->
+<div class="modal fade" id="addBacGiaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Bậc Giá Mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ route('giadien.store') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tên Bậc</label>
+                        <input type="text" class="form-control" name="tenbac" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Từ Số KW</label>
+                        <input type="number" class="form-control" name="tusokw" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Đến Số KW</label>
+                        <input type="number" class="form-control" name="densokw" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Đơn Giá (VNĐ/kWh)</label>
+                        <input type="number" step="0.01" class="form-control" name="dongia" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ghi Chú Version</label>
+                        <textarea class="form-control" name="ghichu"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Thêm Mới</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Sửa Bậc Giá -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sửa Bậc Giá</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editForm" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tên Bậc</label>
+                        <input type="text" class="form-control" name="tenbac" id="edit_tenbac" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Từ Số KW</label>
+                        <input type="number" class="form-control" name="tusokw" id="edit_tusokw" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Đến Số KW</label>
+                        <input type="number" class="form-control" name="densokw" id="edit_densokw" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Đơn Giá (VNĐ/kWh)</label>
+                        <input type="number" step="0.01" class="form-control" name="dongia" id="edit_dongia" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ghi Chú Version</label>
+                        <textarea class="form-control" name="ghichu" id="edit_ghichu"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary">Cập Nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@push('scripts')
+<script>
+    function loadEditData(mabac, tenbac, tusokw, densokw, dongia) {
+        // Set form action URL
+        const form = document.getElementById('editForm');
+        form.action = `/giadien/update/${mabac}`;
+        
+        // Load data vào các input fields
+        document.getElementById('edit_tenbac').value = tenbac;
+        document.getElementById('edit_tusokw').value = tusokw;
+        document.getElementById('edit_densokw').value = densokw === 99999 ? '' : densokw;
+        document.getElementById('edit_dongia').value = dongia;
+        
+        // Focus vào trường đầu tiên để dễ chỉnh sửa
+        document.getElementById('edit_tenbac').focus();
+    }
+</script>
+@endpush 

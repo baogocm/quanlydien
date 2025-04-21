@@ -55,7 +55,7 @@
                         <tr>
                             <td>{{ $hd->mahd }}</td>
                             <td>{{ $hd->nhanVien->tennv }}</td>
-                            <td>{{ $hd->chiTietHoaDon->first()->madk }}</td>
+                            <td>{{ $hd->chiTietHoaDon ? $hd->chiTietHoaDon->madk : 'N/A' }}</td>
                             <td>{{ $hd->ky }}</td>
                             <td>{{ number_format($hd->tinhTongTien(), 0, ',', '.') }}</td>
                             <td>
@@ -134,17 +134,25 @@
                         <tbody>
                             @php
                                 $tongDienNangTieuThu = $hd->chisocuoi - $hd->chisodau;
-                                $bacGia = App\Models\BacGia::orderBy('tusokw')->get();
+                                $bacGia = App\Models\BacGia::where('id_version', $hd->id_version)
+                                    ->orderBy('tusokw')
+                                    ->get()
+                                    ->unique(function ($item) {
+                                        return $item->tusokw . '-' . $item->densokw . '-' . $item->dongia;
+                                    });
                                 $dienNangConLai = $tongDienNangTieuThu;
                                 $tongTien = 0;
+                                $bacCuoi = $bacGia->last(); // Lấy bậc cuối cùng
                             @endphp
+
                             @foreach($bacGia as $bac)
                                 @php
                                     if ($dienNangConLai <= 0) continue;
                                     
                                     $soDien = 0;
-                                    if ($bac->densokw === null) {
-                                        $soDien = $dienNangConLai;
+                                    // Nếu là bậc cuối cùng hoặc bậc không giới hạn
+                                    if ($bac->densokw === null || $bac->densokw == 99999 || $bac->mabac == $bacCuoi->mabac) {
+                                        $soDien = $dienNangConLai; // Lấy tất cả phần còn lại
                                     } else {
                                         $soDien = min($dienNangConLai, $bac->densokw - $bac->tusokw);
                                     }
@@ -153,12 +161,14 @@
                                     $tongTien += $thanhTien;
                                     $dienNangConLai -= $soDien;
                                 @endphp
+                                @if($soDien > 0)
                                 <tr>
-                                    <td>Bậc {{ $bac->mabac }}</td>
+                                    <td>{{ $bac->tenbac }}</td>
                                     <td>{{ $soDien }} kWh</td>
                                     <td>{{ number_format($bac->dongia, 0, ',', '.') }}</td>
                                     <td>{{ number_format($thanhTien, 0, ',', '.') }}</td>
                                 </tr>
+                                @endif
                             @endforeach
                         </tbody>
                         <tfoot>

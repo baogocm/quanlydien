@@ -12,11 +12,23 @@ class HoaDon extends Model
     protected $primaryKey = 'mahd';
     protected $keyType = 'string';
     public $timestamps = false;
-    protected $fillable = ['mahd', 'manv', 'ky', 'tungay', 'denngay', 'chisodau', 'chisocuoi', 'tongthanhtien', 'ngaylaphd', 'tinhtrang'];
+    protected $fillable = [
+        'mahd', 
+        'manv', 
+        'ky', 
+        'tungay', 
+        'denngay', 
+        'chisodau', 
+        'chisocuoi', 
+        'tongthanhtien', 
+        'ngaylaphd', 
+        'tinhtrang',
+        'id_version'
+    ];
 
     public function chiTietHoaDon()
     {
-        return $this->hasMany(CTHoaDon::class, 'mahd', 'mahd');
+        return $this->hasOne(CTHoaDon::class, 'mahd', 'mahd');
     }
 
     public function nhanVien()
@@ -24,10 +36,21 @@ class HoaDon extends Model
         return $this->belongsTo(NhanVien::class, 'manv', 'manv');
     }
 
+    public function versionBacGia()
+    {
+        return $this->belongsTo(VersionBacGia::class, 'id_version', 'id');
+    }
+
     public function tinhTongTien()
     {
         $tongDienNangTieuThu = $this->chisocuoi - $this->chisodau;
-        $bacGia = BacGia::orderBy('tusokw')->get();
+        $bacGia = BacGia::where('id_version', $this->id_version)
+            ->orderBy('tusokw')
+            ->get()
+            ->unique(function ($item) {
+                return $item->tusokw . '-' . $item->densokw . '-' . $item->dongia;
+            });
+            
         $tongTien = 0;
         $dienNangConLai = $tongDienNangTieuThu;
 
@@ -35,7 +58,7 @@ class HoaDon extends Model
             if ($dienNangConLai <= 0) break;
 
             $soDien = 0;
-            if ($bac->densokw === null) {
+            if ($bac->densokw === null || $bac->densokw == 99999) {
                 $soDien = $dienNangConLai;
             } else {
                 $soDien = min($dienNangConLai, $bac->densokw - $bac->tusokw);

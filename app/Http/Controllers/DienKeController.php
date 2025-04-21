@@ -8,6 +8,7 @@ use App\Models\CTHoaDon;
 use App\Models\KhachHang;
 use App\Models\BacGia;
 use App\Models\NhanVien;
+use App\Models\VersionBacGia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -22,121 +23,87 @@ class DienKeController extends Controller
     public function taoHoaDon($madk)
     {
         try {
-            // Kiểm tra điện kế tồn tại
-            $dienke = DienKe::findOrFail($madk);
+            DB::beginTransaction();
+
+            // Lấy thông tin điện kế
+            $dienKe = DienKe::findOrFail($madk);
             
-            // Kiểm tra chỉ số đầu và cuối
-            if ($dienke->cs_dau >= $dienke->cs_cuoi) {
-                return redirect()->back()->with('error', 'Không thể tạo hóa đơn: Chỉ số cuối phải lớn hơn chỉ số đầu!');
+            // Kiểm tra điều kiện tạo hóa đơn
+            if ($dienKe->cs_dau >= $dienKe->cs_cuoi) {
+                return redirect()->back()->with('error', 'Chỉ số điện không hợp lệ để tạo hóa đơn!');
             }
             
-            // Kiểm tra trạng thái hoạt động
-            if ($dienke->trangthai != 1) {
-                return redirect()->back()->with('error', 'Không thể tạo hóa đơn: Điện kế đang không hoạt động!');
+            if (!$dienKe->trangthai) {
+                return redirect()->back()->with('error', 'Không thể tạo hóa đơn cho điện kế ngưng hoạt động!');
             }
-            
-            // Tạo mã hóa đơn đơn giản chỉ với HD + số ngẫu nhiên
-            $mahd = 'HD' . rand(1, 999);
-            
-            // Đảm bảo mã hóa đơn không trùng lặp
-            while (HoaDon::where('mahd', $mahd)->exists()) {
-                $mahd = 'HD' . rand(1, 999);
+
+            // Tính điện năng tiêu thụ
+            $dienNangTieuThu = $dienKe->cs_cuoi - $dienKe->cs_dau;
+            if ($dienNangTieuThu <= 0) {
+                return redirect()->back()->with('error', 'Điện năng tiêu thụ phải lớn hơn 0!');
             }
-            
-            // Lấy nhân viên hiện tại - Xử lý trường hợp không có người dùng đăng nhập
+
+            // Lấy version bậc giá mới nhất
+            $latestVersion = VersionBacGia::latest('ngayapdung')->first();
+            if (!$latestVersion) {
+                return redirect()->back()->with('error', 'Chưa có bảng giá điện nào được thiết lập!');
+            }
+
+            // Lấy mã nhân viên từ người dùng đang đăng nhập
             $manv = null;
             if (Auth::check()) {
-                $user = Auth::user();
-                // Kiểm tra xem user có thuộc tính manv không
-                $manv = $user->manv ?? 'NV001'; // Nếu không có, dùng mã mặc định
+                $manv = Auth::user()->manv;
             } else {
-                // Nếu không có người dùng đăng nhập, lấy nhân viên đầu tiên trong hệ thống
-                $firstNhanVien = DB::table('nhanvien')->first();
-                $manv = $firstNhanVien ? $firstNhanVien->manv : 'NV001';
-            }
-            
-            // Xác định kỳ và thời gian
-            $now = Carbon::now();
-            $ky = $now->format('m/Y');
-            $tungay = Carbon::now()->subMonth()->startOfMonth();
-            $denngay = Carbon::now()->subMonth()->endOfMonth();
-            
-            // Tính điện năng tiêu thụ
-            $dienNangTieuThu = $dienke->cs_cuoi - $dienke->cs_dau;
-            
-            // Tính tổng tiền theo bậc giá
-            $tongTien = 0;
-            $cacBacGia = BacGia::orderBy('tusokw')->get();
-            $dienNangConLai = $dienNangTieuThu;
-            
-            $chiTietTheoMoiBac = [];
-            
-            foreach ($cacBacGia as $bac) {
-                if ($dienNangConLai <= 0) break;
-                
-                $soDien = 0;
-                if ($bac->densokw === null || $bac->densokw == 99999) {
-                    // Bậc không giới hạn
-                    $soDien = $dienNangConLai;
-                } else {
-                    // Số điện trong bậc này = min(điện còn lại, số điện tối đa trong bậc)
-                    $soDienToiDa = $bac->densokw - $bac->tusokw;
-                    $soDien = min($dienNangConLai, $soDienToiDa);
+                // Nếu không có người dùng đăng nhập, lấy một nhân viên mặc định
+                $nhanVien = NhanVien::first();
+                if (!$nhanVien) {
+                    throw new \Exception('Không tìm thấy nhân viên trong hệ thống!');
                 }
-                
-                $tienTheoBac = $soDien * $bac->dongia;
-                $tongTien += $tienTheoBac;
-                $dienNangConLai -= $soDien;
-                
-                // Lưu thông tin chi tiết của mỗi bậc
-                $chiTietTheoMoiBac[] = [
-                    'mabac' => $bac->mabac,
-                    'dienNang' => $soDien,
-                    'dongia' => $bac->dongia,
-                    'thanhtien' => $tienTheoBac
-                ];
+                $manv = $nhanVien->manv;
             }
-            
-            // Bắt đầu transaction để đảm bảo tạo hóa đơn và chi tiết đồng bộ
-            DB::beginTransaction();
-            
-            try {
-                // Tạo hóa đơn mới
-                $hoadon = HoaDon::create([
-                    'mahd' => $mahd,
-                    'manv' => $manv,
-                    'ky' => $ky,
-                    'tungay' => $tungay,
-                    'denngay' => $denngay,
-                    'chisodau' => $dienke->cs_dau,
-                    'chisocuoi' => $dienke->cs_cuoi,
-                    'tongthanhtien' => $tongTien,
-                    'ngaylaphd' => now(),
-                    'tinhtrang' => 0 // Chưa thanh toán
-                ]);
-                
-                // Tạo chi tiết hóa đơn
-                CTHoaDon::create([
-                    'mahd' => $mahd,
-                    'madk' => $dienke->madk,
-                    'dntt' => $dienNangTieuThu,
-                    'dongia' => $dienNangTieuThu > 0 ? $tongTien / $dienNangTieuThu : 0 // Tránh chia cho 0
-                ]);
-                
-                // Cập nhật điện kế - di chuyển chỉ số cuối thành chỉ số đầu cho kỳ tới
-                $dienke->update([
-                    'cs_dau' => $dienke->cs_cuoi
-                ]);
-                
-                DB::commit();
-                
-                return redirect()->route('hoadon.index')->with('success', 'Đã tạo hóa đơn thành công!');
-            } catch (Exception $e) {
-                DB::rollBack();
-                return redirect()->back()->with('error', 'Lỗi khi tạo hóa đơn: ' . $e->getMessage());
-            }
-        } catch (Exception $e) {
-            return redirect()->back()->with('error', 'Lỗi khi tạo hóa đơn: ' . $e->getMessage());
+
+            // Tạo mã hóa đơn mới
+            do {
+                $random = str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT); // Đảm bảo số có 3 chữ số
+                $mahd = 'HD' . $random; // Ví dụ: HD001, HD012, HD123
+            } while (HoaDon::where('mahd', $mahd)->exists()); // Kiểm tra trùng lặp
+
+            // Tạo hóa đơn mới
+            $hoaDon = new HoaDon();
+            $hoaDon->mahd = $mahd;
+            $hoaDon->manv = $manv;
+            $hoaDon->ky = date('m/Y');
+            $hoaDon->tungay = date('Y-m-01');
+            $hoaDon->denngay = date('Y-m-t');
+            $hoaDon->chisodau = $dienKe->cs_dau;
+            $hoaDon->chisocuoi = $dienKe->cs_cuoi;
+            $hoaDon->ngaylaphd = now();
+            $hoaDon->tinhtrang = 0;
+            $hoaDon->id_version = $latestVersion->id;
+
+            // Tính tổng tiền trước khi lưu
+            $tongTien = $hoaDon->tinhTongTien();
+            $hoaDon->tongthanhtien = $tongTien;
+            $hoaDon->save();
+
+            // Cập nhật chỉ số điện kế
+            $dienKe->cs_dau = $dienKe->cs_cuoi;
+            $dienKe->save();
+
+            // Tạo chi tiết hóa đơn
+            CTHoaDon::create([
+                'mahd' => $mahd,
+                'madk' => $madk,
+                'dntt' => $dienNangTieuThu,
+                'dongia' => $tongTien / $dienNangTieuThu
+            ]);
+
+            DB::commit();
+            return redirect()->route('hoadon.index')->with('success', 'Tạo hóa đơn thành công!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
     }
     

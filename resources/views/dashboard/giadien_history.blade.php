@@ -1,62 +1,58 @@
 @extends('layouts.admin')
 
-@section('title', 'Lịch Sử Giá Điện')
+@section('title', 'Lịch sử Bảng Giá Điện')
 
 @section('content')
-<div class="container-fluid px-4">
-    <h1 class="mt-4">Lịch sử thay đổi giá điện</h1>
-    
-    <div class="mb-4">
-        <a href="{{ route('giadien.index') }}" class="btn btn-primary">
-            <i class="fas fa-arrow-left"></i> Quay lại
-        </a>
-    </div>
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Lịch sử Bảng Giá Điện</h1>
+    <p class="mb-4">Danh sách các phiên bản bảng giá điện đã được áp dụng.</p>
 
-    <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-history me-1"></i>
-            Lịch sử thay đổi
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Các Phiên Bản Bảng Giá</h6>
         </div>
         <div class="card-body">
-            <table id="datatablesSimple" class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Thời điểm thay đổi</th>
-                        <th>Mã bậc</th>
-                        <th>Tên bậc</th>
-                        <th>Từ số KW</th>
-                        <th>Đến số KW</th>
-                        <th>Đơn giá (VNĐ)</th>
-                        <th>Ngày áp dụng</th>
-                        <th>Loại thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($history as $item)
-                    <tr>
-                        <td>{{ date('d/m/Y H:i:s', strtotime($item->ngayketthuc ?? $item->created_at)) }}</td>
-                        <td>{{ $item->mabac }}</td>
-                        <td>{{ $item->tenbac }}</td>
-                        <td>{{ $item->tusokw }}</td>
-                        <td>{{ $item->densokw ?? 'Không giới hạn' }}</td>
-                        <td>{{ number_format($item->dongia, 0, ',', '.') }}</td>
-                        <td>{{ date('d/m/Y', strtotime($item->ngayapdung)) }}</td>
-                        <td>
-                            @if($item->action == 'create')
-                                <span class="badge bg-success">Thêm mới</span>
-                            @elseif($item->action == 'update')
-                                <span class="badge bg-primary">Cập nhật</span>
-                            @elseif($item->action == 'delete')
-                                <span class="badge bg-danger">Xóa</span>
-                            @else
-                                <span class="badge bg-secondary">Không xác định</span>
-                            @endif
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID Version</th>
+                            <th>Ngày Áp Dụng</th>
+                            <th>Ghi Chú</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($versions as $version)
+                            <tr>
+                                <td>{{ $version->id }}</td>
+                                <td>{{ \Carbon\Carbon::parse($version->ngayapdung)->format('d/m/Y H:i:s') }}</td>
+                                <td>{{ $version->ghichu }}</td>
+                                <td>
+                                    <a href="{{ route('giadien.history.detail', $version->id) }}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-eye"></i> Xem Chi Tiết
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center">Không có dữ liệu lịch sử.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+
 </div>
-@endsection 
+@endsection
+
+@push('scripts')
+{{-- Thêm các script cần thiết cho DataTable nếu bạn dùng --}}
+<script>
+    // $(document).ready(function() {
+    //     $('#dataTable').DataTable();
+    // });
+</script>
+@endpush 
