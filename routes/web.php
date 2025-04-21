@@ -52,8 +52,8 @@ Route::middleware([AuthNhanVien::class])->group(function () {
     Route::get('/giadien/history/{id}', [GiaDienController::class, 'historyDetail'])->name('giadien.history.detail');
     Route::get('/giadien', [GiaDienController::class, 'index'])->name('giadien.index');
     Route::post('/giadien', [GiaDienController::class, 'store'])->name('giadien.store');
-    Route::post('/giadien/{id}', [GiaDienController::class, 'destroy'])->name('giadien.destroy');
     Route::post('/giadien/update/{id}', [GiaDienController::class, 'update'])->name('giadien.update');
+    Route::post('/giadien/{id}', [GiaDienController::class, 'destroy'])->name('giadien.destroy');
 
     // Users routes
     Route::get('/users', [DashboardController::class, 'users'])->name('users.index');

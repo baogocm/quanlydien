@@ -56,8 +56,7 @@
                         <td>{{ number_format($bg->dongia, 2, ',', '.') }}</td>
                         <td>
                             <button class="btn btn-primary btn-sm" title="Sửa"
-                                    onclick="loadEditData({{ $bg->mabac }}, '{{ $bg->tenbac }}', {{ $bg->tusokw }}, {{ $bg->densokw }}, {{ $bg->dongia }})"
-                                    data-bs-toggle="modal" data-bs-target="#editModal">
+                                    data-bs-toggle="modal" data-bs-target="#editModal{{ $bg->mabac }}">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button class="btn btn-danger btn-sm" title="Xóa"
@@ -122,45 +121,51 @@
 </div>
 
 <!-- Modal Sửa Bậc Giá -->
-<div class="modal fade" id="editModal" tabindex="-1">
+@foreach($bacgia as $bg)
+<div class="modal fade" id="editModal{{ $bg->mabac }}" tabindex="-1" aria-labelledby="editModalLabel{{ $bg->mabac }}" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Sửa Bậc Giá</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="editForm" method="POST">
+            <form action="{{ route('giadien.update', $bg->mabac) }}" method="POST">
                 @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel{{ $bg->mabac }}">Chỉnh sửa bậc giá điện</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Tên Bậc</label>
-                        <input type="text" class="form-control" name="tenbac" id="edit_tenbac" required>
+                        <label class="form-label">Mã bậc</label>
+                        <input type="text" class="form-control" value="{{ $bg->mabac }}" readonly>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Từ Số KW</label>
-                        <input type="number" class="form-control" name="tusokw" id="edit_tusokw" required>
+                        <label class="form-label">Tên bậc</label>
+                        <input type="text" class="form-control" name="tenbac" value="{{ $bg->tenbac }}" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Đến Số KW</label>
-                        <input type="number" class="form-control" name="densokw" id="edit_densokw" required>
+                        <label class="form-label">Từ số KW</label>
+                        <input type="number" class="form-control" name="tusokw" value="{{ $bg->tusokw }}" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Đơn Giá (VNĐ/kWh)</label>
-                        <input type="number" step="0.01" class="form-control" name="dongia" id="edit_dongia" required>
+                        <label class="form-label">Đến số KW</label>
+                        <input type="number" class="form-control" name="densokw" value="{{ $bg->densokw == 99999 ? '' : $bg->densokw }}" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Ghi Chú Version</label>
-                        <textarea class="form-control" name="ghichu" id="edit_ghichu"></textarea>
+                        <label class="form-label">Đơn giá (VNĐ/kWh)</label>
+                        <input type="number" step="0.01" class="form-control" name="dongia" value="{{ $bg->dongia }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ghi chú version</label>
+                        <textarea class="form-control" name="ghichu"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="submit" class="btn btn-primary">Cập Nhật</button>
+                    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+@endforeach
 
 @endsection
 
